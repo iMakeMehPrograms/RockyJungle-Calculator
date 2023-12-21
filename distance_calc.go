@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/junglehornet/junglemath"
+	"log"
 	"math"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func distanceCalc() bool {
@@ -48,33 +51,135 @@ func distanceCalc() bool {
 		return true
 	}
 
-	a := x2 - x1
-	b := y2 - y1
+	distStr := junglemath.CalcDistance(x1, y1, x2, y2, "dec")
+	dist, err := strconv.ParseFloat(distStr, 64)
+	if err != nil {
+		fmt.Println(err)
+	}
+	rootStr := junglemath.CalcDistance(x1, y1, x2, y1, "rad")
 
-	a = a * a
-	b = b * b
+	rootStr, success := strings.CutPrefix(rootStr, "√")
 
-	dist := math.Sqrt(a + b)
-
-	sqrtDist := "√" + strconv.FormatFloat(math.Round(dist*dist), 'f', -1, 64)
-	root := math.Round(dist * dist)
-
-	rootCoefficient := int64(1)
-	simpleRootInt := root
-
-	for i := float64(2); i <= math.Round(math.Sqrt(root)); i++ {
-		if (simpleRootInt / i) == math.Trunc(simpleRootInt/i) {
-			if !(i == simpleRootInt) && !(i == 1) {
-				if math.Sqrt(simpleRootInt/i) == math.Trunc(math.Sqrt(simpleRootInt/i)) {
-					simpleRootInt = i
-					rootCoefficient = rootCoefficient * int64(math.Sqrt(root/i))
-				}
-			}
-		}
+	if !success {
+		log.Fatal(d["str20"] + "\"" + rootStr + "\"")
 	}
 
-	simpleRoot := strconv.FormatInt(rootCoefficient, 10) + "√" +
-		strconv.FormatFloat(simpleRootInt, 'f', -1, 64)
+	root, err := strconv.ParseFloat(rootStr, 64)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	sqrtDist := junglemath.CalcDistance(x1, y1, x2, y2, "rad")
+
+	simpleRoot := junglemath.CalcDistance(x1, y1, x2, y2, "simpRad")
+
+	simpleRootInt, _ := strconv.ParseFloat(strings.TrimLeft(simpleRoot, "√"), 64)
+
+	var response string
+	if (math.Sqrt(root) == math.Trunc(math.Sqrt(root))) || simpleRootInt == root {
+		response = d["str5"] + strconv.FormatFloat(dist, 'f', -1, 64) + d["str6"] + sqrtDist
+	} else {
+		response = d["str5"] + strconv.FormatFloat(dist, 'f', -1, 64) + d["str7"] + sqrtDist +
+			d["str8"] + simpleRoot
+	}
+
+	fmt.Println(response)
+
+	for {
+		fmt.Println("\n" + d["str9"])
+		yn := s.ReadLine()
+
+		switch yn {
+		case "y":
+			fmt.Println(d["str12"])
+			return true
+
+		case "n":
+			fmt.Println(d["n"] + d["str10"])
+			return false
+
+		default:
+			fmt.Println(d["y"] + d["str6"] + d["n"] + d["str11"])
+			return false
+		}
+	}
+}
+
+func distanceCalc3D() bool {
+	fmt.Println(d["str21"])
+	s := NewScanner()
+	inpt := s.ReadLine()
+	re := regexp.MustCompile("(-?\\d*.?\\d*)\\s*,\\s*(-?\\d*.?\\d*)\\s*,\\s*(-?\\d*.?\\d*)")
+	inpt1 := re.FindStringSubmatch(inpt)
+	if !(len(inpt1) == 4) {
+		fmt.Println(d["str4"])
+		return true
+	}
+
+	x1, err := strconv.ParseFloat(inpt1[1], 64)
+	if err != nil {
+		fmt.Println(err)
+		return true
+	}
+	y1, err := strconv.ParseFloat(inpt1[2], 64)
+	if err != nil {
+		fmt.Println(err)
+		return true
+	}
+
+	z1, err := strconv.ParseFloat(inpt1[3], 64)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(d["str22"])
+	inpt = s.ReadLine()
+	inpt2 := re.FindStringSubmatch(inpt)
+	if !(len(inpt2) == 4) {
+		fmt.Println(d["str4"])
+		return true
+	}
+
+	x2, err := strconv.ParseFloat(inpt2[1], 64)
+	if err != nil {
+		fmt.Println(err)
+		return true
+	}
+	y2, err := strconv.ParseFloat(inpt2[2], 64)
+	if err != nil {
+		fmt.Println(err)
+		return true
+	}
+	z2, err := strconv.ParseFloat(inpt1[3], 64)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	distStr := junglemath.CalcDistance3D(x1, y1, z1, x2, y2, z2, "dec")
+	dist, err := strconv.ParseFloat(distStr, 64)
+	if err != nil {
+		fmt.Println(err)
+	}
+	rootStr := junglemath.CalcDistance3D(x1, y1, z1, x2, y1, z2, "rad")
+
+	rootStr, success := strings.CutPrefix(rootStr, "√")
+
+	if !success {
+		log.Fatal(d["str20"] + "\"" + rootStr + "\"")
+	}
+
+	root, err := strconv.ParseFloat(rootStr, 64)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	sqrtDist := junglemath.CalcDistance3D(x1, y1, z1, x2, y1, z2, "rad")
+
+	simpleRoot := junglemath.CalcDistance3D(x1, y1, z1, x2, y1, z2, "simpRad")
+
+	simpleRootInt, _ := strconv.ParseFloat(strings.TrimLeft(simpleRoot, "√"), 64)
 
 	var response string
 	if (math.Sqrt(root) == math.Trunc(math.Sqrt(root))) || simpleRootInt == root {
